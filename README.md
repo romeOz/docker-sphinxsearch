@@ -7,7 +7,7 @@ Table of Contents
  * [Persistence](#persistence)
  * [Backup of a indexes](#backup-of-a-indexes)
  * [Checking backup](#checking-backup)
- * [Recovery from backup](#recovery-from-backup)**
+ * [Recovery from backup](#recovery-from-backup)
  * [Environment variables](#environment-variables)
  * [Logging](#logging) 
  * [Out of the box](#out-of-the-box)
