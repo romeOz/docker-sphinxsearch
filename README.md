@@ -145,6 +145,8 @@ Archive will be available in the `/host/to/path/backup`.
 
 > Algorithm: one backup per week (total 4), one backup per month (total 12) and the last backup. Example: `backup.last.tar.gz`, `backup.1.tar.gz` and `/backup.dec.tar.gz`.
 
+You can disable the rotation by using env `SPHINX_ROTATE_BACKUP=false`.
+
 Checking backup
 -------------------
 
