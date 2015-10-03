@@ -1,0 +1,15 @@
+sphinx:
+  image: romeoz/docker-sphinx
+  container_name: sphinx-test
+  links:
+    - db:db-test
+  restart: always
+db:
+  image: romeoz/docker-mysql
+  container_name: db-test
+  environment:
+    - MYSQL_USER=test
+    - MYSQL_PASS=pass
+    - MYSQL_CACHE_ENABLED=true
+    - DB_NAME=db_test
+  restart: always
