@@ -7,7 +7,7 @@ Table of Contents
  * [Persistence](#persistence)
  * [Backup of a indexes](#backup-of-a-indexes)
  * [Checking backup](#checking-backup)
- * [Recovery from backup](#recovery-from-backup)
+ * [Restore from backup](#restore-from-backup)
  * [Environment variables](#environment-variables)
  * [Logging](#logging) 
  * [Out of the box](#out-of-the-box)
@@ -161,13 +161,13 @@ docker run -it --rm \
 
 Default used the `/tmp/backup/backup.last.tar.gz`.
 
-Recovery from backup
+Restore from backup
 -------------------
 
 ```bash
-docker run --name sphinx-recovery -d \
+docker run --name sphinx-restore -d \
   --link db:db \
-  -e 'SPHINX_IMPORT=default' \
+  -e 'SPHINX_RESTORE=default' \
   -v /host/to/path/backup:/tmp/backup  \
   romeoz/docker-sphinxsearch
 ```
@@ -175,15 +175,15 @@ docker run --name sphinx-recovery -d \
 Environment variables
 ---------------------
 
+`SPHINX_MODE`: Set a specific mode. Takes on the value `backup`.
+
 `SPHINX_BACKUP_DIR`: Set a specific backup directory (default "/tmp/backup").
 
 `SPHINX_BACKUP_FILENAME`: Set a specific filename backup (default "backup.last.tar.gz").
 
-`SPHINX_IMPORT`: Defines name of backup to initialize the demon `searchd`. Note that the scripts must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.last.tar.gz`
- 
-`SPHINX_CHECK`: Defines name of backup to `indextool --check`. Note that the dump must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.tar.gz`
+`SPHINX_CHECK`: Defines name of backup to `indextool --check`. Note that the backup must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.tar.gz`
 
-`SPHINX_MODE`: Set a specific mode. Takes on the value `backup`.
+`SPHINX_RESTORE`: Defines name of backup to initialize the demon `searchd`. Note that the backup must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.last.tar.gz`
 
 `SPHINX_ROTATE_BACKUP`: Determines whether to use the rotation of backups (default "true").
 
@@ -194,7 +194,6 @@ All the logs are forwarded to stdout and sterr. You have use the command `docker
 
 ```bash
 docker logs sphinx
-
 ```
 
 ####Split the logs

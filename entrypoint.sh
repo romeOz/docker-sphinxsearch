@@ -4,7 +4,7 @@ set -e
 SPHINX_MODE=${SPHINX_MODE:-}
 SPHINX_BACKUP_DIR=${SPHINX_BACKUP_DIR:-"/tmp/backup"}
 SPHINX_BACKUP_FILENAME=${SPHINX_BACKUP_FILENAME:-"backup.last.tar.gz"}
-SPHINX_IMPORT=${SPHINX_IMPORT:-}
+SPHINX_RESTORE=${SPHINX_RESTORE:-}
 SPHINX_CHECK=${SPHINX_CHECK:-}
 INDEX_NAME=${INDEX_NAME:-}
 SPHINX_ROTATE_BACKUP=${SPHINX_ROTATE_BACKUP:-true}
@@ -17,8 +17,8 @@ create_backup_dir() {
 }
 
 create_data_dir() {
-  mkdir -p ${SPHINX_DATADIR}
-  chmod -R 0700 ${SPHINX_DATADIR}
+  mkdir -p ${SPHINX_DATA_DIR}
+  chmod -R 0700 ${SPHINX_DATA_DIR}
 }
 
 rotate_backup()
@@ -62,30 +62,30 @@ import_backup()
         exit 1
     fi
     create_data_dir
-    tar -C ${SPHINX_DATADIR} -xf ${FILE}
+    tar -C ${SPHINX_DATA_DIR} -xf ${FILE}
 }
 
-sed -i "s~SPHINX_DATADIR~${SPHINX_DATADIR}~g" ${SPHINX_CONF}
-sed -i "s~SPHINX_LOGDIR~${SPHINX_LOGDIR}~g" ${SPHINX_CONF}
+sed -i "s~SPHINX_DATA_DIR~${SPHINX_DATA_DIR}~g" ${SPHINX_CONF}
+sed -i "s~SPHINX_LOG_DIR~${SPHINX_LOG_DIR}~g" ${SPHINX_CONF}
 sed -i "s~SPHINX_RUN~${SPHINX_RUN}~g" ${SPHINX_CONF}
 
 if [[ ${SPHINX_MODE} == backup ]]; then
     echo "Backup..."
-    if [[ ! -d ${SPHINX_DATADIR} ]]; then
-        echo "No such directory: ${SPHINX_DATADIR}"
+    if [[ ! -d ${SPHINX_DATA_DIR} ]]; then
+        echo "No such directory: ${SPHINX_DATA_DIR}"
         exit 1
     fi
     create_backup_dir
-    cd ${SPHINX_DATADIR}
+    cd ${SPHINX_DATA_DIR}
     tar --ignore-failed-read -zcvf ${SPHINX_BACKUP_DIR}/backup.tar.gz  *.sp* *.ram *.kill *.meta binlog.*
     cd -
     rotate_backup
     exit 0
 fi
 
-# Import dump
-if [[ -n ${SPHINX_IMPORT} ]]; then
-    import_backup ${SPHINX_IMPORT}
+# Restore from backup
+if [[ -n ${SPHINX_RESTORE} ]]; then
+    import_backup ${SPHINX_RESTORE}
 fi
 
  # Check backup
@@ -97,7 +97,7 @@ if [[ -n ${SPHINX_CHECK} ]]; then
     exit 1;
   fi
 
-  if [[ ! -d ${SPHINX_DATADIR} || -z $(ls -A ${SPHINX_DATADIR}) ]]; then
+  if [[ ! -d ${SPHINX_DATA_DIR} || -z $(ls -A ${SPHINX_DATA_DIR}) ]]; then
         import_backup ${SPHINX_CHECK}
   fi
 
@@ -113,14 +113,14 @@ fi
 
 # allow arguments to be passed to Sphinx search
 if [[ ${1:0:1} = '-' ]]; then
-  EXTRA_ARGS="$@"
+  EXTRA_OPTS="$@"
   set --
 fi
 
 # default behaviour is to launch Sphinx search
 if [[ -z ${1} ]]; then
   echo "Starting Sphinx search demon..."
-  exec $(which searchd) --config ${SPHINX_CONF} --nodetach ${EXTRA_ARGS}
+  exec $(which searchd) --config ${SPHINX_CONF} --nodetach ${EXTRA_OPTS}
 else
   exec "$@"
 fi

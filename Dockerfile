@@ -2,10 +2,10 @@ FROM ubuntu:trusty
 MAINTAINER romeOz <serggalka@gmail.com>
 
 ENV SPHINX_LOCALE="en_US.UTF-8" \
-	SPHINX_LOGDIR=/var/log/sphinxsearch \
+	SPHINX_LOG_DIR=/var/log/sphinxsearch \
 	SPHINX_CONF=/etc/sphinxsearch/sphinx.conf \
 	SPHINX_RUN=/run/sphinxsearch/searchd.pid \
-	SPHINX_DATADIR=/var/lib/sphinxsearch/data
+	SPHINX_DATA_DIR=/var/lib/sphinxsearch/data
 
 # Set the locale
 RUN locale-gen ${SPHINX_LOCALE}
@@ -25,11 +25,11 @@ RUN	buildDeps='software-properties-common python-software-properties' \
 	&& rm -rf /var/lib/apt/lists/* \
     && chmod 755 /sbin/entrypoint.sh \
 	# Forward sphinx logs to docker log collector
-	&& ln -sf /dev/stdout ${SPHINX_LOGDIR}/searchd.log \
-	&& ln -sf /dev/stdout ${SPHINX_LOGDIR}/query.log
+	&& ln -sf /dev/stdout ${SPHINX_LOG_DIR}/searchd.log \
+	&& ln -sf /dev/stdout ${SPHINX_LOG_DIR}/query.log
 
 COPY ./sphinx.conf ${SPHINX_CONF}
 
 EXPOSE 9312 9306
-VOLUME ["${SPHINX_DATADIR}"]
+VOLUME ["${SPHINX_DATA_DIR}"]
 ENTRYPOINT ["/sbin/entrypoint.sh"]
