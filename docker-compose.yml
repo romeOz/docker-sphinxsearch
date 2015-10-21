@@ -1,5 +1,5 @@
 sphinx:
-  image: romeoz/docker-sphinx
+  image: romeoz/docker-sphinxsearch
   container_name: sphinx-test
   links:
     - db:db-test
@@ -8,7 +8,7 @@ db:
   image: romeoz/docker-mysql
   container_name: db-test
   environment:
-    - MYSQL_USER=test
+    - MYSQL_USER=admin
     - MYSQL_PASS=pass
     - MYSQL_CACHE_ENABLED=true
     - DB_NAME=db_test

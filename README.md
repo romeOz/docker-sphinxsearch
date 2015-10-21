@@ -37,7 +37,7 @@ Quick Start
 
 Use one of two ways:
 
-1) Use Docker Compose
+1) Usage Docker Compose
  
 ```bash  
 curl -L https://github.com/romeoz/docker-sphinxsearch/raw/master/docker-compose.yml > docker-compose.yml
@@ -49,7 +49,7 @@ Run the mysql image:
 
 ```bash
 docker run --name db -d \
-  -e 'MYSQL_USER=test' -e 'MYSQL_PASS=pass' -e 'MYSQL_CACHE_ENABLED=true' \
+  -e 'MYSQL_USER=admin' -e 'MYSQL_PASS=pass' -e 'MYSQL_CACHE_ENABLED=true' \
   romeoz/docker-mysql
 ```
 
