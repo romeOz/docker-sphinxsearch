@@ -3,9 +3,9 @@ Table of Contents
 
  * [Installation](#installation)
  * [Quick Start](#quick-start)
- * [Example](#example)
-  - [Only Sphinx](#only-sphinx)
-  - [Sphinx + MySQL Client (usage PostgreSQL or other source type)](#sphinx--mysql-client)
+ * [Examples](#examples)
+  - [Sphinx + MySQL](#sphinx--mysql)
+  - [Sphinx + PostgreSQL or other source type](#sphinx--postgresql)
  * [Persistence](#persistence)
  * [Backup of a indexes](#backup-of-a-indexes)
  * [Checking backup](#checking-backup)
@@ -22,12 +22,6 @@ Installation
  
 ```bash
 docker pull romeoz/docker-sphinxsearch
-```
-
-or extended (for using PostgreSQL or other source type):
-
-```bash
-docker pull romeoz/docker-sphinxsearch:ext
 ```
 
 Alternately you can build the image yourself.
@@ -69,16 +63,16 @@ docker run --name sphinx -d \
   romeoz/docker-sphinxsearch
 ```
 
-Example
+Examples
 -------------------
 
-####Only Sphinx
+####Sphinx + MySQL
 
 Run the mysql image with with the creation of database `db_test`:
 
 ```bash
 docker run --name db -d \
-  -e 'MYSQL_USER=test' -e 'MYSQL_PASS=pass' -e 'MYSQL_CACHE_ENABLED=true' \
+  -e 'MYSQL_USER=admin' -e 'MYSQL_PASS=pass' -e 'MYSQL_CACHE_ENABLED=true' \
   -e 'DB_NAME=db_test' \
   romeoz/docker-mysql
 ```
@@ -93,19 +87,13 @@ docker exec -it db \
   mysql -uroot -e 'INSERT INTO db_test.items (content) VALUES ("about dog"),("about cat");'
 ```
 
-Run the sphinx image:
+Run the sphinx image + indexing database:
 
 ```bash
 docker run --name sphinx -d \
   --link db:db \
+  -e "SPHINX_MODE=indexing" \
   romeoz/docker-sphinxsearch
-```
-
-Indexing database:
-
-```bash
-docker exec -it sphinx \
-  indexer --config /etc/sphinxsearch/sphinx.conf --all --rotate
 ```
 
 Searching records:
@@ -116,16 +104,16 @@ docker exec -it db \
   mysql -P9306 -h${host} -e "SELECT * FROM items_index WHERE MATCH('cat');"
 ```
 
-####Sphinx + MySQL Client
+####Sphinx + PostgreSQL
 
 You can using other source type, for example PostgreSQL. If you want to use the SphinxQL, there is no need to install the MySQL server.
-It helps to have the `mysql-common` package and `mysql-client` (if you need a CLI). Container Sphinx + MySQL client built specifically for this.
+It helps to have the `mysql-common` package and `mysql-client` (if you need a CLI).
 
 Run the postgresql image with with the creation of database `db_test`:
 
 ```bash
 docker run --name db-test -d \
-  -e 'DB_NAME=db_test' -e 'DB_USER=tom' -e 'DB_PASS=pass' \
+  -e 'DB_NAME=db_test' -e 'DB_USER=admin' -e 'DB_PASS=pass' \
   romeoz/docker-postgresql
 ```
 
@@ -135,30 +123,30 @@ Creating table `items` and records:
 docker exec -it db-test sudo -u postgres psql db_test \
   -c "CREATE TABLE items (id SERIAL, content TEXT);"
 docker exec -it db-test sudo -u postgres psql db_test \
-  -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO tom; GRANT SELECT ON ALL TABLES IN SCHEMA public TO tom;"
+  -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO admin; GRANT SELECT ON ALL TABLES IN SCHEMA public TO admin;"
 docker exec -it db-test sudo -u postgres psql db_test \
   -c "INSERT INTO items (content) VALUES ('about dog'),('about cat');"
 ```
 
-Run the extended sphinx image:
+Run the sphinx image + indexing database:
 
 ```bash
-docker run --name sphinx-ext -d \
+docker run --name sphinx -d \
   --link db:db \
-  romeoz/docker-sphinxsearch:ext
+  -e "SPHINX_MODE=indexing" -e "SPHINX_CONF=/etc/sphinxsearch/sphinx_pgsql.conf" \
+  romeoz/docker-sphinxsearch
 ```
 
-Indexing database:
+Install MySQL Client:
 
 ```bash
-docker exec -it sphinx-ext \
-  indexer --config /etc/sphinxsearch/sphinx.conf --all --rotate
+docker exec -it sphinx bash -c 'apt-get update && apt-get install -y mysql-client && rm -rf /var/lib/apt/lists/*'
 ```
 
 Searching records:
 
 ```bash
-docker exec -it sphinx-ext \
+docker exec -it sphinx \
   mysql -P9306 -h127.0.0.1 -e "SELECT * FROM items_index WHERE MATCH('cat');"
 ```
 
@@ -231,7 +219,7 @@ docker run --name sphinx-restore -d \
 Environment variables
 ---------------------
 
-`SPHINX_MODE`: Set a specific mode. Takes on the value `backup`.
+`SPHINX_MODE`: Set a specific mode. Takes on the value `backup` or `indexing`.
 
 `SPHINX_BACKUP_DIR`: Set a specific backup directory (default "/tmp/backup").
 
@@ -289,8 +277,6 @@ Out of the box
 -------------------
  * Ubuntu 14.04.3 (LTS)
  * Sphinx Search 2.2
-
-Extended Sphinx uses MySQL Client 5.5.
 
 License
 -------------------

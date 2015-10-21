@@ -69,6 +69,10 @@ sed -i "s~SPHINX_DATA_DIR~${SPHINX_DATA_DIR}~g" ${SPHINX_CONF}
 sed -i "s~SPHINX_LOG_DIR~${SPHINX_LOG_DIR}~g" ${SPHINX_CONF}
 sed -i "s~SPHINX_RUN~${SPHINX_RUN}~g" ${SPHINX_CONF}
 
+if [[ ${SPHINX_MODE} == indexing ]]; then
+ indexer --config ${SPHINX_CONF} --all
+fi
+
 if [[ ${SPHINX_MODE} == backup ]]; then
     echo "Backup..."
     if [[ ! -d ${SPHINX_DATA_DIR} ]]; then
