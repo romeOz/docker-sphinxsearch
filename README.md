@@ -5,7 +5,7 @@ Table of Contents
  * [Quick Start](#quick-start)
  * [Example](#example)
   - [Only Sphinx](#only-sphinx)
-  - [Sphinx + MySQL Client (usage PostgreSQL or other source type)](#sphinx---mysql-client)
+  - [Sphinx + MySQL Client (usage PostgreSQL or other source type)](#sphinx--mysql-client)
  * [Persistence](#persistence)
  * [Backup of a indexes](#backup-of-a-indexes)
  * [Checking backup](#checking-backup)
@@ -132,9 +132,12 @@ docker run --name db-test -d \
 Creating table `items` and records:
 
 ```bash
-docker exec -it db-test sudo -u postgres psql db_test -c "CREATE TABLE items (id SERIAL, content TEXT);"
-docker exec -it db-test sudo -u postgres psql db_test -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO tom; GRANT SELECT ON ALL TABLES IN SCHEMA public TO tom;"
-docker exec -it db-test sudo -u postgres psql db_test -c "INSERT INTO items (content) VALUES ('about dog'),('about cat');"
+docker exec -it db-test sudo -u postgres psql db_test \
+  -c "CREATE TABLE items (id SERIAL, content TEXT);"
+docker exec -it db-test sudo -u postgres psql db_test \
+  -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO tom; GRANT SELECT ON ALL TABLES IN SCHEMA public TO tom;"
+docker exec -it db-test sudo -u postgres psql db_test \
+  -c "INSERT INTO items (content) VALUES ('about dog'),('about cat');"
 ```
 
 Run the sphinx image:
