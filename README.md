@@ -140,7 +140,7 @@ docker exec -it db-test sudo -u postgres psql db_test \
   -c "INSERT INTO items (content) VALUES ('about dog'),('about cat');"
 ```
 
-Run the sphinx image:
+Run the extended sphinx image:
 
 ```bash
 docker run --name sphinx-ext -d \
