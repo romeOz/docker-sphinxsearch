@@ -4,6 +4,8 @@ Table of Contents
  * [Installation](#installation)
  * [Quick Start](#quick-start)
  * [Example](#example)
+  - [Only Sphinx](#only-sphinx)
+  - [Sphinx + MySQL Client (usage PostgreSQL or other source type)](#sphinx---mysql-client)
  * [Persistence](#persistence)
  * [Backup of a indexes](#backup-of-a-indexes)
  * [Checking backup](#checking-backup)
@@ -20,6 +22,12 @@ Installation
  
 ```bash
 docker pull romeoz/docker-sphinxsearch
+```
+
+or extended (for using PostgreSQL or other source type):
+
+```bash
+docker pull romeoz/docker-sphinxsearch:ext
 ```
 
 Alternately you can build the image yourself.
@@ -64,6 +72,8 @@ docker run --name sphinx -d \
 Example
 -------------------
 
+####Only Sphinx
+
 Run the mysql image with with the creation of database `db_test`:
 
 ```bash
@@ -73,14 +83,14 @@ docker run --name db -d \
   romeoz/docker-mysql
 ```
 
-Creating table `foo` and records:
+Creating table `items` and records:
 
 ```bash
 docker exec -it db \
-  mysql -uroot -e 'CREATE TABLE db_test.foo (id INT NOT NULL AUTO_INCREMENT, content TEXT, PRIMARY KEY(id)) ENGINE = INNODB;'
+  mysql -uroot -e 'CREATE TABLE db_test.items (id INT NOT NULL AUTO_INCREMENT, content TEXT, PRIMARY KEY(id)) ENGINE = INNODB;'
   
 docker exec -it db \
-  mysql -uroot -e 'INSERT INTO db_test.foo (content) VALUES ("about dog"),("about cat");'
+  mysql -uroot -e 'INSERT INTO db_test.items (content) VALUES ("about dog"),("about cat");'
 ```
 
 Run the sphinx image:
@@ -98,12 +108,55 @@ docker exec -it sphinx \
   indexer --config /etc/sphinxsearch/sphinx.conf --all --rotate
 ```
 
-Searching record:
+Searching records:
 
 ```bash
 host=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' sphinx);
 docker exec -it db \
   mysql -P9306 -h${host} -e "SELECT * FROM items_index WHERE MATCH('cat');"
+```
+
+####Sphinx + MySQL Client
+
+You can using other source type, for example PostgreSQL. If you want to use the SphinxQL, there is no need to install the MySQL server.
+It helps to have the `mysql-common` package and `mysql-client` (if you need a CLI). Container Sphinx + MySQL client built specifically for this.
+
+Run the postgresql image with with the creation of database `db_test`:
+
+```bash
+docker run --name db-test -d \
+  -e 'DB_NAME=db_test' -e 'DB_USER=tom' -e 'DB_PASS=pass' \
+  romeoz/docker-postgresql
+```
+
+Creating table `items` and records:
+
+```bash
+docker exec -it db-test sudo -u postgres psql db_test -c "CREATE TABLE items (id SERIAL, content TEXT);"
+docker exec -it db-test sudo -u postgres psql db_test -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO tom; GRANT SELECT ON ALL TABLES IN SCHEMA public TO tom;"
+docker exec -it db-test sudo -u postgres psql db_test -c "INSERT INTO items (content) VALUES ('about dog'),('about cat');"
+```
+
+Run the sphinx image:
+
+```bash
+docker run --name sphinx-ext -d \
+  --link db:db \
+  romeoz/docker-sphinxsearch:ext
+```
+
+Indexing database:
+
+```bash
+docker exec -it sphinx-ext \
+  indexer --config /etc/sphinxsearch/sphinx.conf --all --rotate
+```
+
+Searching records:
+
+```bash
+docker exec -it sphinx-ext \
+  mysql -P9306 -h127.0.0.1 -e "SELECT * FROM items_index WHERE MATCH('cat');"
 ```
 
 Persistence
@@ -154,7 +207,7 @@ Check-data is the name of index `INDEX_NAME`.
 
 ```bash
 docker run -it --rm \  
-  -e 'SPHINX_CHECK=default' -e 'INDEX_NAME=foo_index' \
+  -e 'SPHINX_CHECK=default' -e 'INDEX_NAME=items_index' \
   -v /host/to/path/backup:/tmp/backup  \
   romeoz/docker-sphinxsearch
 ```
@@ -233,6 +286,8 @@ Out of the box
 -------------------
  * Ubuntu 14.04.3 (LTS)
  * Sphinx Search 2.2
+
+Extended Sphinx uses MySQL Client 5.5.
 
 License
 -------------------
