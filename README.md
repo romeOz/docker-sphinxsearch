@@ -225,9 +225,9 @@ Environment variables
 
 `SPHINX_BACKUP_FILENAME`: Set a specific filename backup (default "backup.last.tar.gz").
 
-`SPHINX_CHECK`: Defines name of backup to `indextool --check`. Note that the backup must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.tar.gz`
+`SPHINX_CHECK`: Defines name of backup to `indextool --check`. Note that the backup must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.tar.gz`.
 
-`SPHINX_RESTORE`: Defines name of backup to initialize the demon `searchd`. Note that the backup must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.last.tar.gz`
+`SPHINX_RESTORE`: Defines name of backup to initialize the demon `searchd`. Note that the backup must be inside the container, so you may need to mount them. You can specify as `default` that is equivalent to the `/tmp/backup/backup.last.tar.gz`.
 
 `SPHINX_ROTATE_BACKUP`: Determines whether to use the rotation of backups (default "true").
 
