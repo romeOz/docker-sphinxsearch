@@ -1,17 +1,18 @@
 FROM ubuntu:trusty
 MAINTAINER romeOz <serggalka@gmail.com>
 
-ENV SPHINX_LOCALE="en_US.UTF-8" \
+ENV OS_LOCALE="en_US.UTF-8" \
+    OS_LANGUAGE="en_US:en" \
 	SPHINX_LOG_DIR=/var/log/sphinxsearch \
 	SPHINX_CONF=/etc/sphinxsearch/sphinx.conf \
 	SPHINX_RUN=/run/sphinxsearch/searchd.pid \
 	SPHINX_DATA_DIR=/var/lib/sphinxsearch/data
 
 # Set the locale
-RUN locale-gen ${SPHINX_LOCALE}
-ENV LANG=${SPHINX_LOCALE} \
-	LANGUAGE=en_US:en \
-	LC_ALL=${SPHINX_LOCALE}
+RUN locale-gen ${OS_LOCALE}
+ENV LANG=${OS_LOCALE} \
+	LANGUAGE=${OS_LANGUAGE} \
+	LC_ALL=${OS_LOCALE}
 
 COPY ./entrypoint.sh /sbin/entrypoint.sh
 
