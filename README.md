@@ -291,4 +291,4 @@ Out of the box
 License
 -------------------
 
-Sphinx Search container image is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+Sphinx Search docker image is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
