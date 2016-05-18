@@ -17,7 +17,7 @@ Table of Contents
 Installation
 -------------------
 
- * [Install Docker](https://docs.docker.com/installation/) or [askubuntu](http://askubuntu.com/a/473720)
+ * [Install Docker 1.9+](https://docs.docker.com/installation/) or [askubuntu](http://askubuntu.com/a/473720)
  * Pull the latest version of the image.
  
 ```bash
@@ -38,28 +38,33 @@ Quick Start
 Use one of two ways:
 
 1) Usage Docker Compose
- 
-```bash  
+
+```bash
+docker network create sphinx_net
+
 curl -L https://github.com/romeoz/docker-sphinxsearch/raw/master/docker-compose.yml > docker-compose.yml
 docker-compose up -d
 ``` 
 2) Step by step.
 
-Run the mysql image:
+Run mysql container:
 
 ```bash
+docker network create sphinx_net
+
 docker run --name db -d \
+  --net sphinx_net
   -e 'MYSQL_USER=admin' -e 'MYSQL_PASS=pass' -e 'MYSQL_CACHE_ENABLED=true' \
   romeoz/docker-mysql
 ```
 
 >Recommended way (official). Sphinx own implementation of MySQL network protocol (using a small SQL subset called SphinxQL).
 
-Run the sphinx image:
+Run the sphinx container:
 
 ```bash
 docker run --name sphinx -d \
-  --link db:db \
+  --net sphinx_net \
   romeoz/docker-sphinxsearch
 ```
 
@@ -68,10 +73,13 @@ Examples
 
 ####Sphinx + MySQL
 
-Run the mysql image with with the creation of database `db_test`:
+Run the mysql container with with the creation of database `db_test`:
 
 ```bash
+docker network create sphinx_net
+
 docker run --name db -d \
+  --net sphinx_net
   -e 'MYSQL_USER=admin' -e 'MYSQL_PASS=pass' -e 'MYSQL_CACHE_ENABLED=true' \
   -e 'DB_NAME=db_test' \
   romeoz/docker-mysql
@@ -87,11 +95,11 @@ docker exec -it db \
   mysql -uroot -e 'INSERT INTO db_test.items (content) VALUES ("about dog"),("about cat");'
 ```
 
-Run the sphinx image + indexing database:
+Run the sphinx instnace + indexing database:
 
 ```bash
 docker run --name sphinx -d \
-  --link db:db \
+  --net sphinx_net \
   -e "SPHINX_MODE=indexing" \
   romeoz/docker-sphinxsearch
 ```
@@ -109,9 +117,11 @@ docker exec -it db \
 You can using other source type, for example PostgreSQL. If you want to use the SphinxQL, there is no need to install the MySQL server.
 It helps to have the `mysql-common` package and `mysql-client` (if you need a CLI).
 
-Run the postgresql image with with the creation of database `db_test`:
+Run the postgresql container with with the creation of database `db_test`:
 
 ```bash
+docker network create sphinx_net
+
 docker run --name db-test -d \
   -e 'DB_NAME=db_test' -e 'DB_USER=admin' -e 'DB_PASS=pass' \
   romeoz/docker-postgresql
@@ -128,16 +138,16 @@ docker exec -it db-test sudo -u postgres psql db_test \
   -c "INSERT INTO items (content) VALUES ('about dog'),('about cat');"
 ```
 
-Run the sphinx image + indexing database:
+Run sphinx container + indexing database:
 
 ```bash
 docker run --name sphinx -d \
-  --link db:db \
+  --net sphinx_net \
   -e "SPHINX_MODE=indexing" -e "SPHINX_CONF=/etc/sphinxsearch/sphinx_pgsql.conf" \
   romeoz/docker-sphinxsearch
 ```
 
-Install MySQL Client:
+Install MySQL Client to sphinx container:
 
 ```bash
 docker exec -it sphinx bash -c 'apt-get update && apt-get install -y mysql-client && rm -rf /var/lib/apt/lists/*'
@@ -163,7 +173,7 @@ docker run --name sphinx -d \
   romeoz/docker-sphinxsearch
 ```
 
-This will make sure that the data stored in the index is not lost when the image is stopped and started again.
+This will make sure that the data stored in the index is not lost when the container is stopped and started again.
 
 
 Backup of a indexes
@@ -210,7 +220,7 @@ Restore from backup
 
 ```bash
 docker run --name sphinx-restore -d \
-  --link db:db \
+  --net sphinx_net \
   -e 'SPHINX_RESTORE=default' \
   -v /host/to/path/backup:/tmp/backup  \
   romeoz/docker-sphinxsearch
@@ -275,7 +285,7 @@ Create the file `/etc/logrotate.d/docker-containers` with the following text ins
 
 Out of the box
 -------------------
- * Ubuntu 14.04.3 (LTS)
+ * Ubuntu 14.04 LTS
  * Sphinx Search 2.2
 
 License

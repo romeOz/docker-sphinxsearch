@@ -1,12 +1,12 @@
 sphinx:
   image: romeoz/docker-sphinxsearch
-  container_name: sphinx-test
-  links:
-    - db:db-test
+  container_name: sphinx_test
+  net: sphinx_net
   restart: always
 db:
   image: romeoz/docker-mysql
-  container_name: db-test
+  container_name: db_test
+  net: sphinx_net
   environment:
     - MYSQL_USER=admin
     - MYSQL_PASS=pass
