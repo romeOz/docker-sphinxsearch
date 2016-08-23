@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM ubuntu:xenial
 MAINTAINER romeOz <serggalka@gmail.com>
 
 ENV OS_LOCALE="en_US.UTF-8" \
@@ -20,7 +20,7 @@ RUN	buildDeps='software-properties-common python-software-properties' \
 	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends \
 	&& add-apt-repository -y ppa:builds/sphinxsearch-rel22 \
 	&& apt-get update \
-	&& apt-get install -y sphinxsearch \
+	&& apt-get install -y sudo sphinxsearch \
 	&& mv -f /etc/sphinxsearch/sphinx.conf /etc/sphinxsearch/origin.sphinx.conf \
 	&& apt-get purge -y --auto-remove $buildDeps \
 	&& rm -rf /var/lib/apt/lists/* \

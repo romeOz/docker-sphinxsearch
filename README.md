@@ -285,7 +285,7 @@ Create the file `/etc/logrotate.d/docker-containers` with the following text ins
 
 Out of the box
 -------------------
- * Ubuntu 14.04 LTS
+ * Ubuntu 16.04 LTS
  * Sphinx Search 2.2
 
 License
